@@ -14,6 +14,12 @@ class AMapViewManager: RCTViewManager {
     }
   }
 
+  @objc func setSearchPosition(_ reactTag: NSNumber, position: NSDictionary, duration: Int) {
+    getView(reactTag: reactTag) { view in
+      view.setSearchPosition(position: position, duration: duration)
+    }
+  }
+
   @objc func call(_ reactTag: NSNumber, callerId: Double, name: String, args: NSDictionary) {
     getView(reactTag: reactTag) { view in
       view.call(id: callerId, name: name, args: args)
@@ -32,6 +38,9 @@ class MapView: MAMapView, MAMapViewDelegate {
   var overlayMap: [MABaseOverlay: Overlay] = [:]
   var markerMap: [MAPointAnnotation: Marker] = [:]
 
+    var search = AMapSearchAPI();
+    search.delegate = self;
+
   @objc var onLoad: RCTBubblingEventBlock = { _ in }
   @objc var onCameraMove: RCTBubblingEventBlock = { _ in }
   @objc var onCameraIdle: RCTBubblingEventBlock = { _ in }
@@ -46,6 +55,28 @@ class MapView: MAMapView, MAMapViewDelegate {
       initialized = true
       moveCamera(position: json)
     }
+  }
+
+  func setSearchPosition(posotion: NSDictionary, duration: Int = 0) {
+    startPosition = posotion["startPosition"] as NSDictionary
+    endPosition = posotion["endPosition"] as NSDictionary
+
+    startLat = startPosition["latitude"]
+    startLon = startPosition["longitude"]
+
+    endLat = endPosition["latitude"]
+    endLon = endPosition["longitude"]
+
+    startCoordinate        = CLLocationCoordinate2DMake(startLat, startLon)
+    destinationCoordinate  = CLLocationCoordinate2DMake(endLat, endLon)
+
+    let request = AMapDrivingRouteSearchRequest()
+    request.origin = AMapGeoPoint.location(withLatitude: CGFloat(startCoordinate.latitude), longitude: CGFloat(startCoordinate.longitude))
+    request.destination = AMapGeoPoint.location(withLatitude: CGFloat(destinationCoordinate.latitude), longitude: CGFloat(destinationCoordinate.longitude))
+
+    request.requireExtension = true
+
+    search.aMapDrivingRouteSearch(request)
   }
 
   func moveCamera(position: NSDictionary, duration: Int = 0) {
@@ -134,6 +165,12 @@ class MapView: MAMapView, MAMapViewDelegate {
 
   func mapView(_: MAMapView!, didSingleTappedAt coordinate: CLLocationCoordinate2D) {
     onPress(coordinate.json)
+  }
+
+  func onRouteSearchDone(_ request: AMapRouteSearchBaseRequest!, response: AMapRouteSearchResponse!) {
+    if response.count > 0 {
+        //解析response获取路径信息
+    }
   }
 
   func mapView(_: MAMapView!, didTouchPois pois: [Any]!) {

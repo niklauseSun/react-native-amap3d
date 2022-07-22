@@ -6,7 +6,7 @@ import {
   ViewProps,
 } from "react-native";
 import Component from "./component";
-import { CameraPosition, LatLng, LatLngBounds, MapPoi, MapType, Point } from "./types";
+import { CameraPosition, LatLng, LatLngBounds, MapPoi, MapType, Point, SearchPosition } from "./types";
 
 export interface CameraEvent {
   cameraPosition: CameraPosition;
@@ -174,6 +174,10 @@ export default class extends Component<MapViewProps> {
    */
   moveCamera(cameraPosition: CameraPosition, duration = 0) {
     this.invoke("moveCamera", [cameraPosition, duration]);
+  }
+
+  setSearchPosition(position: SearchPosition, duration = 0) {
+    this.invoke("setSearchPosition", [position, duration]);
   }
 
   /**

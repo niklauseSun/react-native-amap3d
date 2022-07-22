@@ -81,6 +81,18 @@ export interface CameraPosition {
   tilt?: number;
 }
 
+export interface SearchPosition {
+  /**
+   * 开始
+   */
+  startPosition?: LatLng;
+
+  /**
+   * 结束
+   */
+  endPosition?: LatLng;
+}
+
 /**
  * 定位
  */
